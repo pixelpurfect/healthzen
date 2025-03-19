@@ -3,133 +3,392 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HealthZen - Patient Management</title>
+    <title>HealthZen - Predictive Analytics</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Roboto', sans-serif;
-            background-color: #e9f7f6;
+            background: linear-gradient(to right, #66ccff, #ff99cc);
             margin: 0;
             padding: 0;
+            overflow-x: hidden;
         }
+
         header {
             background-color: #4CAF50;
             color: white;
             padding: 20px;
             text-align: center;
+            font-size: 28px;
+            font-weight: bold;
+            border-bottom: 5px solid #2e8b57;
         }
+
         .container {
             display: flex;
             justify-content: center;
             align-items: center;
-            height: calc(100vh - 60px);
+            height: 100vh;
+            flex-direction: column;
+            padding: 20px;
         }
-        .form-container {
-            background-color: white;
-            border-radius: 10px;
-            padding: 40px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+
+        .landing-page {
+            text-align: center;
+            max-width: 600px;
             width: 100%;
-            max-width: 500px;
         }
-        h2 {
+
+        .landing-page h2 {
+            font-size: 36px;
+            margin-bottom: 30px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        button {
+            padding: 16px 32px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+            display: inline-block;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .form-container {
+            display: none;
+            background-color: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+            margin: 10px;
+            transition: transform 0.3s;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .form-container h2 {
             text-align: center;
             color: #333;
+            font-size: 28px;
+            margin-bottom: 30px;
+            font-weight: 600;
         }
+
         label {
             font-size: 14px;
             margin-bottom: 8px;
             display: block;
             color: #555;
         }
+
         input, select {
             width: 100%;
-            padding: 12px;
-            margin: 8px 0;
-            border-radius: 6px;
-            border: 1px solid #ccc;
-            font-size: 14px;
-        }
-        button {
-            width: 100%;
-            padding: 14px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-        .health-score {
-            margin-top: 20px;
             padding: 15px;
-            background-color: #f1f1f1;
-            border-radius: 6px;
-            text-align: center;
+            margin: 8px 0;
+            border-radius: 8px;
+            border: 1px solid #ccc;
             font-size: 16px;
+            background-color: #f9f9f9;
+            box-sizing: border-box;
+            transition: border 0.3s;
+        }
+
+        input:focus, select:focus {
+            border: 1px solid #4CAF50;
+            outline: none;
+        }
+
+        .toggle-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .toggle {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.4s;
+            border-radius: 34px;
+        }
+
+        .toggle .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            border-radius: 50%;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: 0.4s;
+        }
+
+        input:checked + .slider {
+            background-color: #4CAF50;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .slider-text {
+            font-size: 18px;
+        }
+
+        .health-score {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f1f1f1;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 20px;
             color: #333;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .health-score h3 {
+            margin: 0;
+        }
+
+        .slider-text {
+            font-size: 16px;
+            margin-top: 5px;
+            font-weight: 500;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+            font-size: 18px;
+            color: #4CAF50;
         }
     </style>
 </head>
 <body>
     <header>
-        <h1>HealthZen - Patient Management System</h1>
+        HealthZen - Patient Management System
     </header>
-    
+
     <div class="container">
+        <div class="landing-page">
+            <h2>Enter Patient Details and Check Health Score</h2>
+            <button id="enterButton">Enter</button>
+        </div>
+
         <div class="form-container">
             <h2>Patient Information</h2>
             <form id="patientForm">
-                <label for="name">Patient Name</label>
-                <input type="text" id="name" name="name" required>
-
                 <label for="age">Age</label>
-                <input type="number" id="age" name="age" required>
+                <input type="range" id="age" name="age" min="18" max="120" value="30">
+                <p id="ageValue">Age: 30</p>
 
                 <label for="gender">Gender</label>
                 <select id="gender" name="gender" required>
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                    <option value="other">Other</option>
+                    <option value="0">Male</option>
+                    <option value="1">Female</option>
                 </select>
 
-                <label for="condition">Medical Condition</label>
-                <input type="text" id="condition" name="condition" required>
+                <label for="bmi">BMI</label>
+                <input type="range" id="bmi" name="bmi" min="10" max="50" step="0.1" value="24">
+                <p id="bmiValue">BMI: 24</p>
 
-                <button type="submit">Add Patient</button>
+                <label for="systolic">Systolic Blood Pressure</label>
+                <input type="range" id="systolic" name="systolic" min="80" max="200" value="120">
+                <p id="systolicValue">Systolic BP: 120</p>
+
+                <label for="diastolic">Diastolic Blood Pressure</label>
+                <input type="range" id="diastolic" name="diastolic" min="50" max="120" value="80">
+                <p id="diastolicValue">Diastolic BP: 80</p>
+
+                <label for="cholesterol">Cholesterol Level</label>
+                <input type="range" id="cholesterol" name="cholesterol" min="100" max="400" value="200">
+                <p id="cholesterolValue">Cholesterol Level: 200</p>
+
+                <label for="glucose">Glucose Level</label>
+                <input type="range" id="glucose" name="glucose" min="50" max="300" value="100">
+                <p id="glucoseValue">Glucose Level: 100</p>
+
+                <label for="physical_activity">Physical Activity (hours/week)</label>
+                <input type="range" id="physical_activity" name="physical_activity" min="0" max="20" value="5">
+                <p id="activityValue">Physical Activity: 5 hours/week</p>
+
+                <label for="smoking">Smoking Status (0 = No, 1 = Yes)</label>
+                <div class="toggle-container">
+                    <span class="slider-text">No</span>
+                    <label class="toggle">
+                        <input type="checkbox" id="smoking" name="smoking">
+                        <span class="slider"></span>
+                    </label>
+                    <span class="slider-text">Yes</span>
+                </div>
+
+                <label for="alcohol">Alcohol Consumption (drinks/week)</label>
+                <input type="range" id="alcohol" name="alcohol" min="0" max="20" value="0">
+                <p id="alcoholValue">Alcohol Consumption: 0 drinks/week</p>
+
+                <button type="submit">Predict Health Score</button>
             </form>
 
             <div id="healthScore" class="health-score" style="display: none;">
-                <h3>Health Score: <span id="score"></span></h3>
+                <h3>Predicted Health Score: <span id="score"></span></h3>
             </div>
+
+            <div id="loading" class="loading">Calculating...</div>
         </div>
     </div>
 
     <script>
-        document.getElementById('patientForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const name = document.getElementById('name').value;
+        document.getElementById('enterButton').addEventListener('click', function() {
+            document.querySelector('.landing-page').style.display = 'none';
+            document.querySelector('.form-container').style.display = 'block';
+        });
+
+        // Handle slider changes
+        document.getElementById('age').addEventListener('input', function() {
+            document.getElementById('ageValue').textContent = 'Age: ' + this.value;
+        });
+        document.getElementById('bmi').addEventListener('input', function() {
+            document.getElementById('bmiValue').textContent = 'BMI: ' + this.value;
+        });
+        document.getElementById('systolic').addEventListener('input', function() {
+            document.getElementById('systolicValue').textContent = 'Systolic BP: ' + this.value;
+        });
+        document.getElementById('diastolic').addEventListener('input', function() {
+            document.getElementById('diastolicValue').textContent = 'Diastolic BP: ' + this.value;
+        });
+        document.getElementById('cholesterol').addEventListener('input', function() {
+            document.getElementById('cholesterolValue').textContent = 'Cholesterol Level: ' + this.value;
+        });
+        document.getElementById('glucose').addEventListener('input', function() {
+            document.getElementById('glucoseValue').textContent = 'Glucose Level: ' + this.value;
+        });
+        document.getElementById('physical_activity').addEventListener('input', function() {
+            document.getElementById('activityValue').textContent = 'Physical Activity: ' + this.value + ' hours/week';
+        });
+        document.getElementById('alcohol').addEventListener('input', function() {
+            document.getElementById('alcoholValue').textContent = 'Alcohol Consumption: ' + this.value + ' drinks/week';
+        });
+
+    document.getElementById('patientForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        document.getElementById('loading').style.display = 'block'; // Show loading indicator
+
+        setTimeout(function() {
             const age = parseInt(document.getElementById('age').value);
             const gender = document.getElementById('gender').value;
-            const condition = document.getElementById('condition').value;
+            const bmi = parseFloat(document.getElementById('bmi').value);
+            const systolic = parseInt(document.getElementById('systolic').value);
+            const diastolic = parseInt(document.getElementById('diastolic').value);
+            const cholesterol = parseInt(document.getElementById('cholesterol').value);
+            const glucose = parseInt(document.getElementById('glucose').value);
+            const physicalActivity = parseInt(document.getElementById('physical_activity').value);
+            const smoking = document.getElementById('smoking').checked ? 1 : 0;
+            const alcohol = parseInt(document.getElementById('alcohol').value);
 
-            // Simple Health Score Calculation (just an example)
-            let healthScore = 100;
-            if (age > 60) healthScore -= 10;
-            if (condition.toLowerCase().includes('diabetes')) healthScore -= 20;
-            if (gender === 'male') healthScore -= 5;
+            let healthScore = 7.0; // Start at a neutral value of 7 (out of 10)
 
-            // Display health score
+            // 1. Age Factor: Age-related risk increase, but not too steep
+            if (age > 60) {
+                healthScore -= Math.pow((age - 60) / 10, 1.2) * 0.5; // Risk increases exponentially but not drastically
+            } else if (age < 30) {
+                healthScore += Math.pow((30 - age) / 10, 1.5) * 0.3; // Some benefit for younger age, but mild
+            }
+
+            // 2. BMI Factor: Reduced penalty for high or low extremes
+            if (bmi < 18.5) {
+                healthScore -= 1.5 * Math.pow(18.5 - bmi, 1.5); // Risk increases as BMI decreases, but not too drastically
+            } else if (bmi > 30) {
+                healthScore -= 1.5 * Math.pow(bmi - 30, 1.5); // Higher penalty for BMI > 30, but still linear enough
+            } else {
+                healthScore += 0.5 * Math.pow(bmi - 22, 1.2); // Mild reward for BMI between 22-25 (healthy range)
+            }
+
+            // 3. Blood Pressure: Gradual penalty, less sensitive to small changes
+            const systolicImpact = Math.pow((systolic - 120) / 10, 1.3) * 0.8;
+            const diastolicImpact = Math.pow((diastolic - 80) / 10, 1.3) * 0.8;
+            if (systolic > 130 || diastolic > 85) {
+                healthScore -= systolicImpact + diastolicImpact; // Slightly sharper penalty if BP is high
+            }
+
+            // 4. Cholesterol: More gradual penalty for high levels
+            if (cholesterol < 150) {
+                healthScore += 0.8 * Math.pow(150 - cholesterol, 1.5); // Small reward for low cholesterol
+            } else if (cholesterol > 240) {
+                healthScore -= 2 * Math.pow(cholesterol - 240, 1.3); // Gradual penalty for high cholesterol
+            }
+
+            // 5. Glucose Level: More severe penalty past a certain threshold
+            if (glucose > 100 && glucose <= 150) {
+                healthScore -= (glucose - 100) * 0.1; // Gradual penalty
+            } else if (glucose > 150) {
+                healthScore -= (glucose - 150) * 0.2; // Sharper penalty beyond 150
+            }
+
+            // 6. Physical Activity: Reward for exercise, but diminishing returns
+            if (physicalActivity > 0) {
+                healthScore += 0.5 * Math.log(physicalActivity + 1); // Logarithmic benefit for exercise
+            }
+
+            // 7. Smoking: Significant penalty for smokers, but not too harsh
+            if (smoking === 1) {
+                healthScore -= 3 * Math.pow(smoking, 1.5); // Major penalty for smoking
+            }
+
+            // 8. Alcohol Consumption: Gradual penalty for alcohol consumption
+            if (alcohol > 0) {
+                healthScore -= 0.5 * Math.log(alcohol + 1); // Diminishing penalty as alcohol consumption increases
+            }
+
+            // 9. Gender Adjustment: Slight adjustment based on gender
+            if (gender == 0) {
+                healthScore -= Math.max(0, Math.pow((age - 50), 2) * 0.005); // Males have a higher age-related risk
+            } else {
+                healthScore += Math.max(0, Math.pow((age - 30), 1.5) * 0.002); // Females benefit slightly from younger age
+            }
+
+            // Ensure health score stays within the 1 to 10 range
+            healthScore = Math.max(1, Math.min(10, healthScore));
+
+            // Display the calculated health score with two decimal places
+            document.getElementById('score').textContent = healthScore.toFixed(2);
+
+            // Hide loading indicator and show health score result
+            document.getElementById('loading').style.display = 'none';
             document.getElementById('healthScore').style.display = 'block';
-            document.getElementById('score').innerText = healthScore;
-
-            // Reset form
-            document.getElementById('patientForm').reset();
-        });
+        }, 500); // Simulate some delay (loading effect)
+    });
     </script>
 </body>
 </html>
